@@ -30,4 +30,3 @@ Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET C
 
 ## Starter attribution
 This solution started from the supplied ITI starter repository/project structure. The implementation is being built independently for the assigned D2/T5 variant.
-
