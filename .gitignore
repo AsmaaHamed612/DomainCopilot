@@ -1,0 +1,14 @@
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.env
+.env.*
+!.env.example
+TestResults/
+coverage/
+*.nupkg
+.DS_Store
