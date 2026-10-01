@@ -17,13 +17,40 @@ Implemented:
 - Human review queue domain model with assignment, priority, SLA, escalation and approval/rejection/edit-and-approve operations.
 - Initial unit tests for domain invariants and deterministic calculations.
 
+## Day 2 status
+Implemented:
+- Policy-backed claim adjudication that selects the policy version for the loss date and calculates payouts in domain code.
+- Conservative referral to a human when policy, version, coverage or exclusions leave uncertainty.
+- SQL Server persistence for policies, claims, review items and immutable reviewer decision audit entries, applied through an EF Core migration at API startup.
+- HTTP endpoints for claim intake/adjudication and review assignment, start, escalation, decisions and audit history.
+- Synthetic `POL-DEMO-001` seed policy with two date-effective versions.
+
+The API is an early workflow slice: authorization, evidence-driven exclusion matching, orchestration, streaming and reviewer statistics are deferred.
+
 Deferred to later slices:
 - Document ingestion/RAG.
 - Multi-agent orchestration.
-- Persistence and vector storage.
+- Vector storage.
 - Authentication/authorization.
 - Real-time progress/cancellation.
 - Evaluation harness and security controls.
+
+## Run locally (Windows)
+Prerequisites: .NET 9 SDK and SQL Server LocalDB (`MSSQLLocalDB`). The API applies database migrations on startup.
+
+```powershell
+dotnet run --project .\src\DomainCopilot.Api
+```
+
+The HTTP profile listens on `http://localhost:5121`; health is at `/health`. Open `src/DomainCopilot.Api/DomainCopilot.Api.http` for sample claim and review requests. The seeded demo policy number is `POL-DEMO-001`, with `WATER` coverage. Claims using the 2025 version can receive a deterministic recommendation; the 2026 version includes an exclusion and therefore refers the claim for human review.
+
+Run verification with:
+
+```powershell
+dotnet restore .\DomainCopilot.sln --locked-mode
+dotnet build .\DomainCopilot.sln --no-restore
+dotnet test .\DomainCopilot.sln --no-build --no-restore
+```
 
 ## Architecture rule
 Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET Core. External providers will be introduced through interfaces and Infrastructure adapters.
