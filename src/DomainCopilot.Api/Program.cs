@@ -9,6 +9,8 @@ using DomainCopilot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddOpenApi();
 builder.Services.AddDomainCopilot(builder.Configuration);

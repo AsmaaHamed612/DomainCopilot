@@ -4,6 +4,7 @@ using DomainCopilot.Application.ReviewQueue;
 using DomainCopilot.Domain.Services;
 using DomainCopilot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,8 +18,11 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("ConnectionStrings:DomainCopilot is required.");
 
-        services.AddDbContext<DomainCopilotDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        var serverVersion = new MySqlServerVersion(new Version(8, 0, 0));
+        // The initial schema migration is hand-authored SQL rather than an EF-generated snapshot.
+        services.AddDbContext<DomainCopilotDbContext>(options => options
+            .UseMySql(connectionString, serverVersion)
+            .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
         services.AddScoped<IPolicyRepository, MySqlPolicyRepository>();
         services.AddScoped<IClaimRepository, MySqlClaimRepository>();
         services.AddScoped<IReviewQueueRepository, MySqlReviewQueueRepository>();

@@ -22,4 +22,5 @@ public sealed class PersistenceModelTests
         Assert.Contains("CREATE TABLE `ReviewDecisionAudits`", createScript, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("`CreatedAt` bigint", createScript, StringComparison.OrdinalIgnoreCase);
     }
+
 }

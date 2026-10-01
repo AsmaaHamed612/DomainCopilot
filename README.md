@@ -47,10 +47,10 @@ Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is opti
 2. In PowerShell, from the repository folder, set your local MySQL username and password for this terminal session. Replace the example values with the same credentials that work in Workbench:
 
    ```powershell
-   $env:ConnectionStrings__DomainCopilot = 'Server=127.0.0.1;Port=3306;Database=DomainCopilot;User ID=root;Password=YOUR_MYSQL_PASSWORD;'
+   $env:ConnectionStrings__DomainCopilot = 'Server=127.0.0.1;Port=3306;Database=DomainCopilot;User ID=root;Password=YOUR_MYSQL_PASSWORD;SslMode=None;AllowPublicKeyRetrieval=True'
    ```
 
-   The password stays in your local terminal and is not part of the repository.
+   The password stays in your local terminal and is not part of the repository. `SslMode=None` is for this local loopback connection only; use TLS for remote database servers.
 
 3. Start the API:
 
