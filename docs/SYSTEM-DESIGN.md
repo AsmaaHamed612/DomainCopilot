@@ -11,14 +11,14 @@ Day 1 and Day 2 implement the domain foundations and an initial persisted HTTP w
 - Coverage and exclusion models.
 - Deterministic payout calculator.
 - Human review queue model with SLA and decision controls.
-- SQL Server relational persistence with an initial EF Core migration and synthetic policy seed data.
+- MySQL relational persistence with an initial EF Core migration and synthetic policy seed data.
 - HTTP claim intake/adjudication and review queue operations, including decision audit records.
 - Domain and application unit tests for deterministic adjudication and reviewer ownership.
 
 ## Gap table
 | Target component | Implemented? | Interim mitigation | Planned slice |
 |---|---:|---|---|
-| Relational persistence | Yes, SQL Server + EF migration | Single SQL Server instance; not yet containerized or backed up | Add Compose and operational backup/restore |
+| Relational persistence | Yes, MySQL + EF migration | Single local MySQL instance; not yet containerized or backed up | Add Compose and operational backup/restore |
 | Vector store | No | None yet | RAG slice |
 | LLM provider abstraction | No | No LLM calls on Day 1 | Agent slice |
 | Three D2 agents + orchestrator | No | Domain contracts only | Agent slice |

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DomainCopilot.Infrastructure.Persistence;
 
-public sealed class SqlServerReviewQueueRepository(DomainCopilotDbContext dbContext) : IReviewQueueRepository
+public sealed class MySqlReviewQueueRepository(DomainCopilotDbContext dbContext) : IReviewQueueRepository
 {
     public async Task AddAsync(ReviewQueueItem item, CancellationToken cancellationToken = default)
     {

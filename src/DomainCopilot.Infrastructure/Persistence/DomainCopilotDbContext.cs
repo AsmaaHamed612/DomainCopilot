@@ -86,6 +86,9 @@ public sealed class DomainCopilotDbContext(DbContextOptions<DomainCopilotDbConte
             entity.Property(item => item.Status).HasConversion<int>();
             entity.Property(item => item.Decision).HasMaxLength(2048);
             entity.Property(item => item.ReviewerComment).HasMaxLength(2048);
+            entity.Property(item => item.CreatedAt).HasConversion<long>();
+            entity.Property(item => item.DueAt).HasConversion<long>();
+            entity.Property(item => item.EscalatedAt).HasConversion<long>();
             entity.HasOne<Claim>().WithMany().HasForeignKey(item => item.ClaimId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -96,6 +99,7 @@ public sealed class DomainCopilotDbContext(DbContextOptions<DomainCopilotDbConte
             entity.Property(audit => audit.Action).HasMaxLength(32).IsRequired();
             entity.Property(audit => audit.Decision).HasMaxLength(2048).IsRequired();
             entity.Property(audit => audit.Comment).HasMaxLength(2048).IsRequired();
+            entity.Property(audit => audit.CreatedAt).HasConversion<long>();
             entity.HasIndex(audit => new { audit.ReviewQueueItemId, audit.CreatedAt });
             entity.HasOne<ReviewQueueItem>().WithMany().HasForeignKey(audit => audit.ReviewQueueItemId).OnDelete(DeleteBehavior.Cascade);
         });

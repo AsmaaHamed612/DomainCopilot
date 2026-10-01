@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DomainCopilot.Infrastructure.Persistence;
 
-public sealed class SqlServerClaimRepository(DomainCopilotDbContext dbContext) : IClaimRepository
+public sealed class MySqlClaimRepository(DomainCopilotDbContext dbContext) : IClaimRepository
 {
     public async Task AddAsync(Claim claim, CancellationToken cancellationToken = default)
     {

@@ -17,10 +17,11 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("ConnectionStrings:DomainCopilot is required.");
 
-        services.AddDbContext<DomainCopilotDbContext>(options => options.UseSqlServer(connectionString));
-        services.AddScoped<IPolicyRepository, SqlServerPolicyRepository>();
-        services.AddScoped<IClaimRepository, SqlServerClaimRepository>();
-        services.AddScoped<IReviewQueueRepository, SqlServerReviewQueueRepository>();
+        services.AddDbContext<DomainCopilotDbContext>(options =>
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        services.AddScoped<IPolicyRepository, MySqlPolicyRepository>();
+        services.AddScoped<IClaimRepository, MySqlClaimRepository>();
+        services.AddScoped<IReviewQueueRepository, MySqlReviewQueueRepository>();
         services.AddScoped<IClaimAdjudicationService, ClaimAdjudicationService>();
         services.AddScoped<ClaimIntakeService>();
         services.AddScoped<ReviewQueueService>();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DomainCopilot.Infrastructure.Persistence;
 
-public sealed class SqlServerPolicyRepository(DomainCopilotDbContext dbContext) : IPolicyRepository
+public sealed class MySqlPolicyRepository(DomainCopilotDbContext dbContext) : IPolicyRepository
 {
     public Task<Policy?> GetByPolicyNumberAsync(string policyNumber, CancellationToken cancellationToken = default) =>
         dbContext.Policies

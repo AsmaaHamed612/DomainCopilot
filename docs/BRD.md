@@ -20,7 +20,7 @@ Insurance adjusters need a grounded claims-adjudication assistant that identifie
 ## Day 2 requirements
 | ID | Requirement | Acceptance criteria | Status |
 |---|---|---|---|
-| BR-06 | Receive and persist a claim | API validates claim identity, policy, coverage, loss date and amount; claim is stored in SQL Server | Implemented |
+| BR-06 | Receive and persist a claim | API validates claim identity, policy, coverage, loss date and amount; claim is stored in MySQL | Implemented |
 | BR-07 | Adjudicate against applicable policy | Select policy version by loss date, match coverage, calculate payout in deterministic code, and refer to a human when evidence/policy is ambiguous | Implemented |
 | BR-08 | Persist and operate the review queue | API supports assignment, starting review, escalation, approve/reject/edit-and-approve; only the assigned reviewer can decide | Implemented |
 | BR-09 | Audit reviewer decisions | Each decision stores reviewer, action, final decision, mandatory comment and timestamp in a separate SQL table | Implemented |
