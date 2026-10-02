@@ -13,4 +13,8 @@ public sealed record ClaimAdjudicationResult(
     RecommendationType Recommendation,
     Money CalculatedPayout,
     string Reason,
-    int? PolicyVersion);
+    int? PolicyVersion)
+{
+    public IReadOnlyList<AgentStepResult> AgentSteps { get; init; } = [];
+}
+

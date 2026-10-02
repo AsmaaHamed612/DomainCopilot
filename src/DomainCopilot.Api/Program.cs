@@ -86,6 +86,7 @@ app.MapPost("/claims/{id:guid}/adjudicate", async (
         currency = result.CalculatedPayout.Currency,
         result.Reason,
         result.PolicyVersion,
+        agentSteps = result.AgentSteps,
         reviewQueueItemId = item.Id,
         reviewStatus = item.Status.ToString(),
         reviewDueAt = item.DueAt
@@ -177,3 +178,4 @@ public sealed record ReviewDecisionDto(string ReviewerId, ReviewDecisionAction A
 public sealed record ReviewQueueResponse(Guid Id, Guid ClaimId, string? AssignedReviewerId, string Priority, string Status, DateTimeOffset CreatedAt, DateTimeOffset DueAt, DateTimeOffset? EscalatedAt, string? Decision, string? ReviewerComment);
 
 public partial class Program;
+
