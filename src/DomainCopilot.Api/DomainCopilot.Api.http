@@ -1,0 +1,32 @@
+@DomainCopilot.Api_HostAddress = http://localhost:5121
+
+GET {{DomainCopilot.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+@DomainCopilot.Api_HostAddress = http://localhost:5121
+
+GET {{DomainCopilot.Api_HostAddress}}/health
+Accept: application/json
+
+### Receive a synthetic claim
+POST {{DomainCopilot.Api_HostAddress}}/claims
+Content-Type: application/json
+
+{
+  "claimNumber": "CLM-DEMO-001",
+  "policyNumber": "POL-DEMO-001",
+  "coverageCode": "WATER",
+  "lossDate": "2025-06-15",
+  "claimedAmount": 42000,
+  "currency": "EGP",
+  "description": "Synthetic water damage claim"
+}
+
+### Replace the ID with the one returned by Receive a synthetic claim
+POST {{DomainCopilot.Api_HostAddress}}/claims/{{claimId}}/adjudicate
+Accept: application/json
+
+### List the human review queue
+GET {{DomainCopilot.Api_HostAddress}}/review-queue
+Accept: application/json
