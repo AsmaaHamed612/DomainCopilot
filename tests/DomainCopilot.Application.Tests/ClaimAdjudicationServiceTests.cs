@@ -13,7 +13,7 @@ public sealed class ClaimAdjudicationServiceTests
     public async Task AdjudicateAsync_SelectsApplicableVersionAndCalculatesPayoutDeterministically()
     {
         var policy = CreatePolicy(includeExclusion: false);
-        var service = new ClaimAdjudicationService(new FakePolicyRepository(policy), new ClaimPayoutCalculator());
+        var service = CreateOrchestrator(policy);
 
         var result = await service.AdjudicateAsync(new ClaimAdjudicationRequest(
             "POL-001", new DateOnly(2025, 6, 15), "WATER", new Money(42000m, "EGP")));
@@ -26,7 +26,7 @@ public sealed class ClaimAdjudicationServiceTests
     [Fact]
     public async Task AdjudicateAsync_RefersToHumanWhenNoPolicyMatches()
     {
-        var service = new ClaimAdjudicationService(new FakePolicyRepository(null), new ClaimPayoutCalculator());
+        var service = CreateOrchestrator(null);
 
         var result = await service.AdjudicateAsync(new ClaimAdjudicationRequest(
             "UNKNOWN", new DateOnly(2025, 6, 15), "WATER", new Money(42000m, "EGP")));
@@ -40,7 +40,7 @@ public sealed class ClaimAdjudicationServiceTests
     public async Task AdjudicateAsync_RefersToHumanWhenApplicableVersionHasExclusions()
     {
         var policy = CreatePolicy(includeExclusion: true);
-        var service = new ClaimAdjudicationService(new FakePolicyRepository(policy), new ClaimPayoutCalculator());
+        var service = CreateOrchestrator(policy);
 
         var result = await service.AdjudicateAsync(new ClaimAdjudicationRequest(
             "POL-001", new DateOnly(2026, 6, 15), "WATER", new Money(42000m, "EGP")));
@@ -53,7 +53,7 @@ public sealed class ClaimAdjudicationServiceTests
     public async Task AdjudicateAsync_RefersToHumanWhenLossDateFallsBetweenVersions()
     {
         var policy = CreatePolicy(includeExclusion: false);
-        var service = new ClaimAdjudicationService(new FakePolicyRepository(policy), new ClaimPayoutCalculator());
+        var service = CreateOrchestrator(policy);
 
         var result = await service.AdjudicateAsync(new ClaimAdjudicationRequest(
             "POL-001", new DateOnly(2024, 12, 31), "WATER", new Money(42000m, "EGP")));
@@ -76,9 +76,19 @@ public sealed class ClaimAdjudicationServiceTests
         return policy;
     }
 
+    private static ClaimAdjudicationOrchestrator CreateOrchestrator(Policy? policy)
+    {
+        var repository = new FakePolicyRepository(policy);
+        return new ClaimAdjudicationOrchestrator(
+            new CoverageMatcherAgent(repository),
+            new ExclusionAnalystAgent(),
+            new AdjudicationDrafterAgent(new ClaimPayoutCalculator()));
+    }
+
     private sealed class FakePolicyRepository(Policy? policy) : IPolicyRepository
     {
         public Task<Policy?> GetByPolicyNumberAsync(string policyNumber, CancellationToken cancellationToken = default) =>
             Task.FromResult(policy is not null && policy.PolicyNumber == policyNumber ? policy : null);
     }
 }
+

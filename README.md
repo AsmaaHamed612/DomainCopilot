@@ -25,14 +25,14 @@ Implemented:
 - HTTP endpoints for claim intake/adjudication and review assignment, start, escalation, decisions and audit history.
 - Synthetic `POL-DEMO-001` seed policy with two date-effective versions.
 
-The API is an early workflow slice: authorization, evidence-driven exclusion matching, orchestration, streaming and reviewer statistics are deferred.
+The API is an early workflow slice. Claim adjudication now runs through three typed stages: Coverage Matcher, Exclusion Analyst and Adjudication Drafter. The orchestrator records a short status for each stage in the adjudication response. These are deterministic application components; no LLM provider or document retrieval is wired in yet. Because exclusion evidence is unavailable, a policy version with listed exclusions is referred to a human adjuster. Every recommendation remains behind the existing review queue approval step.
 
 Deferred to later slices:
 - Document ingestion/RAG.
-- Multi-agent orchestration.
 - Vector storage.
+- LLM provider abstraction and evidence citations.
 - Authentication/authorization.
-- Real-time progress/cancellation.
+- Streaming progress and reviewer statistics.
 - Evaluation harness and security controls.
 
 ## Run locally (Windows)
@@ -58,7 +58,7 @@ Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is opti
 dotnet run --project .\src\DomainCopilot.Api
 ```
 
-The HTTP profile listens on `http://localhost:5121`; health is at `/health`. Open `src/DomainCopilot.Api/DomainCopilot.Api.http` for sample claim and review requests. The seeded demo policy number is `POL-DEMO-001`, with `WATER` coverage. Claims using the 2025 version can receive a deterministic recommendation; the 2026 version includes an exclusion and therefore refers the claim for human review.
+The HTTP profile listens on `http://localhost:5121`; health is at `/health`. Open `src/DomainCopilot.Api/DomainCopilot.Api.http` for sample claim and review requests. The seeded demo policy number is `POL-DEMO-001`, with `WATER` coverage. Claims using the 2025 version can receive a deterministic recommendation; the 2026 version includes an exclusion and therefore refers the claim for human review. The adjudication response includes an `agentSteps` array showing the status and summary from each stage.
 
 Run verification with:
 
@@ -73,3 +73,4 @@ Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET C
 
 ## Starter attribution
 This solution started from the supplied ITI starter repository/project structure. The implementation is being built independently for the assigned D2/T5 variant.
+
