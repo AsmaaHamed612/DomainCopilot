@@ -6,6 +6,7 @@ namespace DomainCopilot.Infrastructure.Persistence;
 public sealed class DomainCopilotDbContext(DbContextOptions<DomainCopilotDbContext> options) : DbContext(options)
 {
     public DbSet<Claim> Claims => Set<Claim>();
+    public DbSet<AgentRun> AgentRuns => Set<AgentRun>();
     public DbSet<Policy> Policies => Set<Policy>();
     public DbSet<PolicyVersion> PolicyVersions => Set<PolicyVersion>();
     public DbSet<ReviewQueueItem> ReviewQueueItems => Set<ReviewQueueItem>();
@@ -102,6 +103,35 @@ public sealed class DomainCopilotDbContext(DbContextOptions<DomainCopilotDbConte
             entity.Property(audit => audit.CreatedAt).HasConversion<long>();
             entity.HasIndex(audit => new { audit.ReviewQueueItemId, audit.CreatedAt });
             entity.HasOne<ReviewQueueItem>().WithMany().HasForeignKey(audit => audit.ReviewQueueItemId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentRun>(entity =>
+        {
+            entity.ToTable("AgentRuns");
+            entity.HasKey(run => run.Id);
+            entity.Property(run => run.CorrelationId).IsRequired();
+            entity.Property(run => run.Status).HasMaxLength(32).IsRequired();
+            entity.Property(run => run.StartedAt).HasConversion<long>();
+            entity.Property(run => run.CompletedAt).HasConversion<long?>();
+            entity.HasIndex(run => new { run.ClaimId, run.StartedAt });
+            entity.HasIndex(run => run.CorrelationId);
+            entity.HasOne<Claim>().WithMany().HasForeignKey(run => run.ClaimId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasMany(run => run.Steps).WithOne().HasForeignKey(step => step.AgentRunId).OnDelete(DeleteBehavior.Cascade);
+            entity.Navigation(run => run.Steps).HasField("_steps").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<AgentRunStep>(entity =>
+        {
+            entity.ToTable("AgentRunSteps");
+            entity.HasKey(step => step.Id);
+            entity.Property(step => step.Agent).HasMaxLength(128).IsRequired();
+            entity.Property(step => step.EventType).HasMaxLength(64).IsRequired();
+            entity.Property(step => step.Status).HasMaxLength(32).IsRequired();
+            entity.Property(step => step.Summary).IsRequired();
+            entity.Property(step => step.OccurredAt).HasConversion<long>();
+            entity.Property(step => step.Tool).HasMaxLength(128);
+            entity.Property(step => step.Cost).HasPrecision(18, 6);
+            entity.HasIndex(step => new { step.AgentRunId, step.OccurredAt });
         });
     }
 }

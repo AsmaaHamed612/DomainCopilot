@@ -49,10 +49,13 @@ public sealed class ReviewQueueService
         return item;
     }
 
-    public async Task<ReviewQueueItem?> StartAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ReviewQueueItem?> StartAsync(Guid id, string reviewerId, CancellationToken cancellationToken = default)
     {
         var item = await _repository.GetByIdAsync(id, cancellationToken);
         if (item is null) return null;
+        if (string.IsNullOrWhiteSpace(reviewerId)) throw new ArgumentException("Reviewer ID is required.", nameof(reviewerId));
+        if (!string.Equals(item.AssignedReviewerId, reviewerId.Trim(), StringComparison.Ordinal))
+            throw new InvalidOperationException("Only the assigned reviewer can start this item.");
 
         item.StartReview();
         await _repository.SaveAsync(item, cancellationToken);

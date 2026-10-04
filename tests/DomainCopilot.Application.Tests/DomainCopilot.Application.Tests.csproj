@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\docs\evaluation\claims-golden-set.json" Link="evaluation\claims-golden-set.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\DomainCopilot.Application\DomainCopilot.Application.csproj" />
     <ProjectReference Include="..\..\src\DomainCopilot.Infrastructure\DomainCopilot.Infrastructure.csproj" />
   </ItemGroup>

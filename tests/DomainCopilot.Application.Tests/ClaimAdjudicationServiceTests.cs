@@ -62,6 +62,44 @@ public sealed class ClaimAdjudicationServiceTests
         Assert.Null(result.PolicyVersion);
     }
 
+    [Fact]
+    public async Task AdjudicateAsync_ReportsEveryAgentStage()
+    {
+        var service = CreateOrchestrator(CreatePolicy(includeExclusion: false));
+        var progress = new List<AgentProgressEvent>();
+
+        var result = await service.AdjudicateAsync(
+            new ClaimAdjudicationRequest("POL-001", new DateOnly(2025, 6, 15), "WATER", new Money(42000m, "EGP")),
+            (item, _) =>
+            {
+                progress.Add(item);
+                return ValueTask.CompletedTask;
+            });
+
+        Assert.Equal(6, progress.Count);
+        Assert.Equal("Coverage Matcher", progress[0].Agent);
+        Assert.Equal("started", progress[0].Status);
+        Assert.Equal("Adjudication Drafter", progress[^1].Agent);
+        Assert.Equal("Approve", progress[^1].Status);
+        Assert.Equal(3, result.AgentSteps.Count);
+    }
+
+    [Fact]
+    public async Task AdjudicateAsync_StopsWhenProgressConsumerCancels()
+    {
+        var service = CreateOrchestrator(CreatePolicy(includeExclusion: false));
+        using var source = new CancellationTokenSource();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.AdjudicateAsync(
+            new ClaimAdjudicationRequest("POL-001", new DateOnly(2025, 6, 15), "WATER", new Money(42000m, "EGP")),
+            (_, _) =>
+            {
+                source.Cancel();
+                return ValueTask.CompletedTask;
+            },
+            source.Token));
+    }
+
     private static Policy CreatePolicy(bool includeExclusion)
     {
         var policy = new Policy("POL-001");
@@ -91,4 +129,3 @@ public sealed class ClaimAdjudicationServiceTests
             Task.FromResult(policy is not null && policy.PolicyNumber == policyNumber ? policy : null);
     }
 }
-

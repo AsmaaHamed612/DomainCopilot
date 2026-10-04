@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IPolicyRepository, MySqlPolicyRepository>();
         services.AddScoped<IClaimRepository, MySqlClaimRepository>();
         services.AddScoped<IReviewQueueRepository, MySqlReviewQueueRepository>();
+        services.AddScoped<IAgentRunRepository, MySqlAgentRunRepository>();
         services.AddScoped<ICoverageMatcherAgent, CoverageMatcherAgent>();
         services.AddScoped<IExclusionAnalystAgent, ExclusionAnalystAgent>();
         services.AddScoped<IAdjudicationDrafterAgent, AdjudicationDrafterAgent>();
@@ -37,4 +38,3 @@ public static class DependencyInjection
         return services;
     }
 }
-
