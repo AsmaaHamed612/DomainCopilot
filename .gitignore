@@ -10,5 +10,6 @@
 !.env.example
 TestResults/
 coverage/
+.build/
 *.nupkg
 .DS_Store

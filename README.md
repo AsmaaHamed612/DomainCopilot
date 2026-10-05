@@ -51,6 +51,18 @@ Added an honest security assessment and evaluation report for the current implem
 
 These reports do not claim that the deferred security, ingestion, retrieval, or LLM features are implemented.
 
+## Teaching pack
+
+The session materials are in [`teaching/`](teaching/):
+
+- [`learning-outcomes-assessment-map.md`](teaching/learning-outcomes-assessment-map.md) — 90-minute lesson plan, measurable outcomes, and scoring criteria.
+- [`slides/governed-multi-agent-workflows.pptx`](teaching/slides/governed-multi-agent-workflows.pptx) — presentation with speaker notes.
+- [`lab-multi-agent-orchestration.md`](teaching/lab-multi-agent-orchestration.md) — guided API lab, expected results, answer key, and stretch work.
+- [`common-trainee-mistakes.md`](teaching/common-trainee-mistakes.md) — likely misconceptions and instructor corrections.
+- [`video-scripts.md`](teaching/video-scripts.md) — scripts and recording checklist for the two required videos. The candidate must still record and publish both videos in their own face and voice; no video links are claimed here.
+
+The pack teaches the current deterministic workflow accurately and calls out the missing LLM/RAG behavior. It does not present planned components as implemented.
+
 ## Run locally (Windows)
 Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is optional; the API connects directly to the server. The API applies migrations and seeds its synthetic demo policy on startup.
 
@@ -100,6 +112,10 @@ The golden-case test evaluates 25 deterministic claim scenarios. RAG retrieval h
 
 ## Architecture rule
 Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET Core. External providers will be introduced through interfaces and Infrastructure adapters.
+
+## Continuous integration
+
+Pull requests run the locked .NET restore, solution build, and unit-test suite through [GitHub Actions](.github/workflows/dotnet.yml). A green CI run verifies compilation and the existing automated tests; it does not verify connectivity to an individual developer's local MySQL instance.
 
 ## Starter attribution
 This solution started from the supplied ITI starter repository/project structure. The implementation is being built independently for the assigned D2/T5 variant.
