@@ -44,6 +44,13 @@ Implemented:
 
 The workflow remains deterministic and does not call an LLM or retrieve documents. Retrieval hit rate and groundedness are not calculated; chunk, token and model-cost values remain null in run telemetry until those providers exist.
 
+## Day 5 status
+Added an honest security assessment and evaluation report for the current implementation:
+- [`docs/SECURITY.md`](docs/SECURITY.md) lists implemented controls, known gaps and deployment blockers.
+- [`docs/EVALUATION.md`](docs/EVALUATION.md) records the deterministic 25-case baseline and explains why retrieval and groundedness metrics are not available yet.
+
+These reports do not claim that the deferred security, ingestion, retrieval, or LLM features are implemented.
+
 ## Run locally (Windows)
 Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is optional; the API connects directly to the server. The API applies migrations and seeds its synthetic demo policy on startup.
 
@@ -96,3 +103,4 @@ Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET C
 
 ## Starter attribution
 This solution started from the supplied ITI starter repository/project structure. The implementation is being built independently for the assigned D2/T5 variant.
+

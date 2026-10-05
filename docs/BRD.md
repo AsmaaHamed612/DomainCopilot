@@ -24,14 +24,20 @@ Insurance adjusters need a grounded claims-adjudication assistant that identifie
 | BR-07 | Adjudicate against applicable policy | Select policy version by loss date, match coverage, calculate payout in deterministic code, and refer to a human when evidence/policy is ambiguous | Implemented |
 | BR-08 | Persist and operate the review queue | API supports assignment, starting review, escalation, approve/reject/edit-and-approve; only the assigned reviewer can decide | Implemented |
 | BR-09 | Audit reviewer decisions | Each decision stores reviewer, action, final decision, mandatory comment and timestamp in a separate SQL table | Implemented |
+| BR-10 | Separate adjuster and reviewer access | Protected routes enforce distinct server-side roles; reviewer decision identity is derived from authentication | Implemented as an MVP with shared role keys; production identity and per-user scoping are deferred |
+| BR-11 | Inspect adjudication runs | Persist run and step status, duration, and correlation ID; stream progress and honor client cancellation | Implemented; token/cost/chunk telemetry depends on deferred providers |
+| BR-12 | Evaluate deterministic adjudication | Run 25 synthetic cases, including five adversarial exclusion-text cases, against expected outcomes | Implemented for deterministic outcomes; retrieval and groundedness evaluation are deferred |
 
-## Day 2 traceability
-- BR-06: `POST /claims`, `ClaimIntakeService`, `Claims` migration table.
-- BR-07: `POST /claims/{id}/adjudicate`, `ClaimAdjudicationService`, seeded date-effective policy versions.
-- BR-08: `/review-queue` endpoints and `ReviewQueueService` state rules.
-- BR-09: `ReviewDecisionAudits` migration table and `GET /review-queue/{id}/audit`.
+## Day 2–5 traceability
+- BR-06: `POST /claims`, `ClaimIntakeService`, and the `Claims` migration table — implemented.
+- BR-07: `POST /claims/{id}/adjudicate`, `ClaimAdjudicationOrchestrator`, and seeded date-effective policy versions — implemented for deterministic structured policy data; document evidence and retrieval remain deferred.
+- BR-08: `/review-queue` endpoints and `ReviewQueueService` state rules — implemented, including reviewer assignment checks.
+- BR-09: `ReviewDecisionAudits` migration table and `GET /review-queue/{id}/audit` — implemented.
+- BR-10: Adjuster and Reviewer API-key roles enforced on protected endpoints — implemented as an MVP; managed identities, per-user keys, rotation, and object-level read scoping remain deferred.
+- BR-11: Correlated and persisted adjudication run/step status and SSE progress/cancellation — implemented; token, model-cost, and retrieved-chunk telemetry remain unavailable without RAG/LLM providers.
+- BR-12: A 25-case deterministic baseline including five adversarial exclusion-text cases — implemented; retrieval hit-rate, groundedness, and LLM refusal metrics are not measured.
 
-API authentication/authorization and transactional updates across claim, queue and audit writes are not implemented yet; these remain security/persistence follow-up work.
+See [`SECURITY.md`](SECURITY.md) and [`EVALUATION.md`](EVALUATION.md) for the current controls, verification evidence, and gaps. Authentication is implemented, but it is not a production identity system. Transactional updates across claim, queue, and audit writes have not been verified end to end.
 
 ## Business rules
 1. The LLM must not perform authoritative payout arithmetic.
@@ -47,3 +53,4 @@ RAG, document ingestion, LLM providers, vector databases, authentication, persis
 - Money is represented with a decimal amount and ISO-like currency code.
 - Policy periods are inclusive of both dates.
 - The first MVP uses synthetic/public data only.
+
