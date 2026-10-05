@@ -19,3 +19,9 @@ public sealed record ExclusionAnalysisResult(
 
 public sealed record AgentStepResult(string Agent, string Status, string Summary);
 
+public sealed record AgentProgressEvent(
+    string Agent,
+    string EventType,
+    string Status,
+    string Summary,
+    long? DurationMs = null);

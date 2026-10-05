@@ -31,9 +31,18 @@ Deferred to later slices:
 - Document ingestion/RAG.
 - Vector storage.
 - LLM provider abstraction and evidence citations.
-- Authentication/authorization.
-- Streaming progress and reviewer statistics.
-- Evaluation harness and security controls.
+- Token/cost telemetry (the current deterministic workflow has no model usage).
+- Reviewer statistics.
+- Retrieval/LLM evaluation metrics and security hardening.
+
+## Day 4 status
+Implemented:
+- API-key authentication with separate Adjuster and Reviewer roles. Reviewer decisions use the authenticated reviewer ID rather than a request-body identity.
+- Server-sent progress events for claim adjudication. Disconnecting the client cancels work and sends the claim to the human review queue.
+- Correlation IDs and persisted agent runs/steps, including status and duration, available from `GET /agent-runs/{runId}`.
+- A 25-case golden set covering payout boundaries, missing policy/coverage, exclusions and adversarial exclusion text.
+
+The workflow remains deterministic and does not call an LLM or retrieve documents. Retrieval hit rate and groundedness are not calculated; chunk, token and model-cost values remain null in run telemetry until those providers exist.
 
 ## Run locally (Windows)
 Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is optional; the API connects directly to the server. The API applies migrations and seeds its synthetic demo policy on startup.
@@ -52,13 +61,25 @@ Prerequisites: .NET 9 SDK and MySQL Server 8.0 or later. MySQL Workbench is opti
 
    The password stays in your local terminal and is not part of the repository. `SslMode=None` is for this local loopback connection only; use TLS for remote database servers.
 
-3. Start the API:
+3. In the same PowerShell session, create separate development API keys for adjusters and reviewers. Keep them private and do not add them to Git:
+
+   ```powershell
+   $env:Authentication__AdjusterApiKey = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+   $env:Authentication__ReviewerApiKey = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+   $env:Authentication__ReviewerId = 'reviewer-asmaa'
+   ```
+
+   The reviewer ID must match the reviewer assigned to a queue item. Claim intake and adjudication require the adjuster key; review actions require the reviewer key. Queue assignment requires the adjuster key.
+
+4. Start the API:
 
 ```powershell
 dotnet run --project .\src\DomainCopilot.Api
 ```
 
-The HTTP profile listens on `http://localhost:5121`; health is at `/health`. Open `src/DomainCopilot.Api/DomainCopilot.Api.http` for sample claim and review requests. The seeded demo policy number is `POL-DEMO-001`, with `WATER` coverage. Claims using the 2025 version can receive a deterministic recommendation; the 2026 version includes an exclusion and therefore refers the claim for human review. The adjudication response includes an `agentSteps` array showing the status and summary from each stage.
+The HTTP profile listens on `http://localhost:5121`; health is at `/health` and remains public. Open `src/DomainCopilot.Api/DomainCopilot.Api.http` for sample claim and review requests. The seeded demo policy number is `POL-DEMO-001`, with `WATER` coverage. Claims using the 2025 version can receive a deterministic recommendation; the 2026 version includes an exclusion and therefore refers the claim for human review. The adjudication response includes `agentSteps`, `runId` and `correlationId`.
+
+To stream progress, call `POST /claims/{claimId}/adjudicate/stream` with the Adjuster key and `Accept: text/event-stream`. Press Ctrl+C in `curl.exe` to cancel the request; the server records a cancelled run and leaves the claim for human review. Inspect persisted run details with `GET /agent-runs/{runId}` and the Reviewer key.
 
 Run verification with:
 
@@ -68,9 +89,10 @@ dotnet build .\DomainCopilot.sln --no-restore
 dotnet test .\DomainCopilot.sln --no-build --no-restore
 ```
 
+The golden-case test evaluates 25 deterministic claim scenarios. RAG retrieval hit rate and LLM groundedness are not reported until those components exist.
+
 ## Architecture rule
 Domain and Application do not reference LLM SDKs, vector-store SDKs or ASP.NET Core. External providers will be introduced through interfaces and Infrastructure adapters.
 
 ## Starter attribution
 This solution started from the supplied ITI starter repository/project structure. The implementation is being built independently for the assigned D2/T5 variant.
-

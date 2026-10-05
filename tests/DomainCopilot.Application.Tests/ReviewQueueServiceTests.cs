@@ -18,7 +18,7 @@ public sealed class ReviewQueueServiceTests
         var service = new ReviewQueueService(queue, claims, new FixedTimeProvider(now));
         var item = await service.CreateAsync(claim.Id, ReviewPriority.High);
         await service.AssignAsync(item.Id, "adjuster-001");
-        await service.StartAsync(item.Id);
+        await service.StartAsync(item.Id, "adjuster-001");
 
         await service.DecideAsync(item.Id, "adjuster-001", ReviewDecisionAction.Approve, null, "Evidence reviewed.");
 
@@ -37,10 +37,23 @@ public sealed class ReviewQueueServiceTests
         var service = new ReviewQueueService(queue, new FakeClaimRepository(claim), new FixedTimeProvider(now));
         var item = await service.CreateAsync(claim.Id, ReviewPriority.Normal);
         await service.AssignAsync(item.Id, "adjuster-001");
-        await service.StartAsync(item.Id);
+        await service.StartAsync(item.Id, "adjuster-001");
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.DecideAsync(item.Id, "adjuster-002", ReviewDecisionAction.Approve, null, "Not assigned."));
+    }
+
+    [Fact]
+    public async Task StartAsync_RejectsReviewerOtherThanAssignee()
+    {
+        var now = new DateTimeOffset(2026, 10, 1, 12, 0, 0, TimeSpan.Zero);
+        var claim = new Claim("CLM-003", "POL-001", "WATER", new DateOnly(2026, 9, 1), new Money(1000m, "EGP"), "Synthetic water damage");
+        var queue = new FakeReviewQueueRepository();
+        var service = new ReviewQueueService(queue, new FakeClaimRepository(claim), new FixedTimeProvider(now));
+        var item = await service.CreateAsync(claim.Id, ReviewPriority.Normal);
+        await service.AssignAsync(item.Id, "reviewer-001");
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.StartAsync(item.Id, "reviewer-002"));
     }
 
     private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider

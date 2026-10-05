@@ -6,7 +6,7 @@ namespace DomainCopilot.Application.Tests;
 public sealed class PersistenceModelTests
 {
     [Fact]
-    public void MySqlModel_CreatesClaimsPolicyReviewAndAuditTables()
+    public void MySqlModel_CreatesClaimsPolicyReviewAuditAndAgentRunTables()
     {
         var options = new DbContextOptionsBuilder<DomainCopilotDbContext>()
             .UseMySql("Server=localhost;Database=ModelOnly;User=root", new MySqlServerVersion(new Version(8, 0, 0)))
@@ -20,6 +20,10 @@ public sealed class PersistenceModelTests
         Assert.Contains("CREATE TABLE `Coverages`", createScript, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("CREATE TABLE `ReviewQueueItems`", createScript, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("CREATE TABLE `ReviewDecisionAudits`", createScript, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("CREATE TABLE `AgentRuns`", createScript, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("CREATE TABLE `AgentRunSteps`", createScript, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("`CorrelationId` char(36)", createScript, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("`TokensUsed` int", createScript, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("`CreatedAt` bigint", createScript, StringComparison.OrdinalIgnoreCase);
     }
 
